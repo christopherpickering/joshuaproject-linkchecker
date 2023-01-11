@@ -13,7 +13,7 @@ API_KEY = os.environ.get("API_KEY")
 START=0
 END=99999999999
 if os.environ.get("CHUNK"):
-    END=os.environ.get("CHUNK")
+    END=int(os.environ.get("CHUNK"))
     START=END-3000
 
 
