@@ -10,10 +10,20 @@ load_dotenv()
 
 API_KEY = os.environ.get("API_KEY")
 
+START=0
+END=99999999999
+if os.environ.get("CHUNK"):
+    END=os.environ.get("CHUNK")
+    START=END-3000
+
+
 
 def get_urls():
-    page=1
+
     page_size=100
+    page = (START/page_size) + 1
+
+    end_page = (END/page_size)
 
     URLS=[]
 
@@ -29,14 +39,14 @@ def get_urls():
                 if "URL" in resource:
                     URLS.append(resource["URL"])
 
-        page += 1
-
         yield [*set(URLS)]
 
 
         # if page size is < 100 then we reached the end.
-        if len(data) < 100:
+        if len(data) < 100 or page == end_page:
             break
+
+        page += 1
 
         # break
 
