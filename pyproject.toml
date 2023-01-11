@@ -5,7 +5,6 @@ description = "Verify links to external websites."
 authors = ["Christopher Pickering <https://going.bg>"]
 license = "MIT"
 readme = "README.md"
-packages = [{include = "jp_link_checker"}]
 
 [tool.poetry.dependencies]
 python = "^3.8.2"
