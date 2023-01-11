@@ -31,18 +31,14 @@ def get_urls():
 
         page += 1
 
-        if len(data) < 100:
-            break
-        
-
         yield [*set(URLS)]
 
-        break
 
+        # if page size is < 100 then we reached the end.
+        if len(data) < 100:
+            break
 
-# for x in get_urls():
-#     print(x)
-
+        # break
 
 def process(url_batch):
     errors = []
@@ -79,13 +75,14 @@ def runner():
         for future in as_completed(futures):
             r = future.result()
             if r:
+                # if running "at home" we can turn on a progress bar to show failed groups
                 # progress_indicator('x')
-                # print(r)
                 url_errors.extend(r)
             # else:
             #     progress_indicator('.')
 
 
+    # if running "at home" we can print errors.
     # print("\n\n")
     # print(len(url_errors), " errors")
     with open("errors.csv", "w") as file:
