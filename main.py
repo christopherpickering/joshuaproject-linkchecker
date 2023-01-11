@@ -23,6 +23,8 @@ def get_urls():
         data=p.json()
 
         for group in data:
+            if "Resources" not in group:
+                continue
             for resource in group["Resources"]:
                 if "URL" in resource:
                     URLS.append(resource["URL"])
@@ -77,11 +79,11 @@ def runner():
         for future in as_completed(futures):
             r = future.result()
             if r:
-                progress_indicator('x')
+                # progress_indicator('x')
                 # print(r)
                 url_errors.extend(r)
-            else:
-                progress_indicator('.')
+            # else:
+            #     progress_indicator('.')
 
 
     # print("\n\n")
@@ -98,6 +100,7 @@ def runner():
 
     if codes:
         return 1
+    return 0
 
 if __name__ == '__main__':
     print(runner())
