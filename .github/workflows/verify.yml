@@ -1,0 +1,33 @@
+name: master
+on:
+  push:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 5 1 * *'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: setup poetry
+        uses: abatilo/actions-poetry@v2
+        with:
+          poetry-version: 1.2.2
+
+      - name: install deps
+        run: poetry install
+
+      - name: build
+        run: EXIT=$(poetry run python main.py)
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: errors
+          path: errors.csv
+
+      - run: exit $EXIT

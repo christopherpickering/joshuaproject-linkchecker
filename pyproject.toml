@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "jp-link-checker"
+version = "0.1.0"
+description = "Verify links to external websites."
+authors = ["Christopher Pickering <https://going.bg>"]
+license = "MIT"
+readme = "README.md"
+packages = [{include = "jp_link_checker"}]
+
+[tool.poetry.dependencies]
+python = "^3.8.2"
+requests = "^2.28.1"
+python-dotenv = "^0.21.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
