@@ -9,7 +9,7 @@ jobs:
   verify:
     strategy:
       matrix:
-        chunk: [3000, 6000, 9000, 12000, 15000, 18000, 21000, 24000]
+        chunk: [50, 100, 150, 200, 250]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -33,7 +33,7 @@ jobs:
 
       - uses: actions/upload-artifact@v3
         with:
-          name: errors
+          name: errors ${{ matrix.chunck }}
           path: errors.csv
 
       - run: exit $EXIT

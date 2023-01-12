@@ -4,9 +4,16 @@ from concurrent.futures import ProcessPoolExecutor, as_completed
 import os
 from functools import partial
 import csv
+import concurrent.futures
+import threading
+import time
+
 
 from dotenv import load_dotenv
 load_dotenv()
+
+thread_local = threading.local()
+
 
 API_KEY = os.environ.get("API_KEY")
 
@@ -14,7 +21,7 @@ START=0
 END=99999999999
 if os.environ.get("CHUNK"):
     END=int(os.environ.get("CHUNK"))
-    START=END-3000
+    START=END-50
 
 
 
@@ -39,8 +46,7 @@ def get_urls():
                 if "URL" in resource:
                     URLS.append(resource["URL"])
 
-        yield [*set(URLS)]
-
+        yield page, [*set(URLS)]
 
         # if page size is < 100 then we reached the end.
         if len(data) < 100 or page == end_page:
@@ -48,53 +54,34 @@ def get_urls():
 
         page += 1
 
-        # break
+        # if page > 0:
+        #     break
 
-def process(url_batch):
-    errors = []
-    for url in url_batch:
-        try:
-            p = requests.head(url, allow_redirects=True)
+def get_headers(url):
+    try:
+        p = requests.head(url, allow_redirects=False)
 
-            if p.status_code != 200:
-                errors.append([url,p.status_code, ''])
+        if p.status_code not in [200,301]:
+            return [url,p.status_code, '']
 
-            if p.history:
-                errors.append([url,301, p.url])
-        except BaseException as e:
-            errors.append([url,999,e])
-    return errors
-
+    except BaseException as e:
+        return [url,999,e]
 
 def progress_indicator(char):
     print(char, end='', flush=True)
 
 def runner():
-    worker_count = int(round((os.cpu_count() or 1) / 2))
+    url_errors =[]
+    pages = 0
+    for page, urls in get_urls():
+        pages = page
+        print(f"Processing {len(urls)} urls...")
+        with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
+            url_errors.extend(executor.map(get_headers, urls))
 
-    if sys.platform == "win32":
-        # Work around https://bugs.python.org/issue26903
-        worker_count = min(worker_count, 60)
+    total = len(url_errors)
+    url_errors=[x for x in url_errors if x]
 
-    with ProcessPoolExecutor(max_workers=worker_count) as exe:
-        url_errors = []
-
-        func = partial(process)
-        futures = {exe.submit(func, url_batch): url_batch for url_batch in get_urls()}
-
-        for future in as_completed(futures):
-            r = future.result()
-            if r:
-                # if running "at home" we can turn on a progress bar to show failed groups
-                # progress_indicator('x')
-                url_errors.extend(r)
-            # else:
-            #     progress_indicator('.')
-
-
-    # if running "at home" we can print errors.
-    # print("\n\n")
-    # print(len(url_errors), " errors")
     with open("errors.csv", "w") as file:
 
         writer = csv.writer(file)
@@ -106,8 +93,24 @@ def runner():
     codes = [x for x in url_errors if x[1] in [999,400,406]]
 
     if codes:
-        return 1
-    return 0
+        exit= 1
+    exit =0
+
+    return pages, total, exit
 
 if __name__ == '__main__':
-    print(runner())
+    start_time = time.time()
+    pages, total,exit = runner()
+
+    duration = time.time() - start_time
+    print(f"Processed {total} urls in {duration} seconds from {int(pages)} API requests")
+
+    if exit==1:
+        # will return error
+        sys.exit()
+
+
+
+
+
+
