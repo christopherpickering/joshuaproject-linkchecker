@@ -72,18 +72,16 @@ def get_headers(url):
     except BaseException as e:
         return [url,999,e]
 
-def progress_indicator(char):
-    print(char, end='', flush=True)
-
 def runner():
     url_errors =[]
-    pages = 0
-    for page, urls in get_urls():
-        pages = page
-        print(f"Processing {len(urls)} urls...")
-        with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
-            url_errors.extend(executor.map(get_headers, urls))
 
+    for page, urls in get_urls():
+        print(f"Processing {len(urls)} urls from page {page}...",sep='',end="\r",flush=True)
+        start_time = time.time()
+        with concurrent.futures.ThreadPoolExecutor(max_workers=None) as executor:
+            url_errors.extend(executor.map(get_headers, urls))
+        duration = round(time.time() - start_time,0)
+        print(f"Processed {len(urls)} urls from page {page} in {duration} seconds", flush=True)
     total = len(url_errors)
     url_errors=[x for x in url_errors if x]
 
@@ -93,14 +91,14 @@ def runner():
         for row in url_errors:
             writer.writerow(row)
 
-    return pages, total
+    return total
 
 if __name__ == '__main__':
     start_time = time.time()
-    pages, total = runner()
+    total = runner()
 
     duration = time.time() - start_time
-    print(f"Processed {total} urls in {duration} seconds from {int(pages)} API requests")
+    print(f"Processed {total} urls in {duration} seconds.")
 
 
 
