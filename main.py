@@ -19,6 +19,9 @@ CHUNK_SIZE=int(os.environ.get("CHUNK_SIZE",'10'))
 
 API_KEY = os.environ.get("API_KEY")
 
+HEADERS = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36'}
+
+
 def get_urls():
 
     page_size=int(os.environ.get("CHUNK_SIZE",'100'))
@@ -57,7 +60,7 @@ def get_urls():
 
 def get_headers(url):
     try:
-        p = requests.head(url, allow_redirects=False)
+        p = requests.head(url, allow_redirects=False, headers=HEADERS)
 
         if p.status_code not in [200,301]:
             return [url,p.status_code, '']
