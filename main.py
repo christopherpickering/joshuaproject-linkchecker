@@ -14,27 +14,20 @@ load_dotenv()
 
 thread_local = threading.local()
 
+CHUNK=int(os.environ.get("CHUNK",'10'))
+CHUNK_SIZE=int(os.environ.get("CHUNK_SIZE",'10'))
 
 API_KEY = os.environ.get("API_KEY")
 
-START=0
-END=99999999999
-if os.environ.get("CHUNK"):
-    END=int(os.environ.get("CHUNK"))
-    START=END-50
-
-
-
 def get_urls():
 
-    page_size=100
-    page = START
+    page_size=int(os.environ.get("CHUNK_SIZE",'100'))
+    page = CHUNK-(CHUNK_SIZE-1) # pages start at 1
 
-    end_page = END
-
-    URLS=[]
+    end_page = CHUNK
 
     while True:
+        URLS=[]
         p = requests.get(f'https://api.joshuaproject.net/v1/people_groups.json?api_key={API_KEY}&page={page}&limit={page_size}')
 
         try:
@@ -54,7 +47,7 @@ def get_urls():
             print(e)
 
         # if page size is < 100 then we reached the end.
-        if len(data) < 100 or page == end_page:
+        if len(data) < CHUNK_SIZE or page == CHUNK:
             break
 
         page += 1
