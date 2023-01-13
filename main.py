@@ -19,7 +19,7 @@ CHUNK_SIZE=int(os.environ.get("CHUNK_SIZE",'10'))
 
 API_KEY = os.environ.get("API_KEY")
 
-HEADERS = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36'}
+HEADERS = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.1 Safari/605.1.15'}
 
 
 def get_urls():
@@ -63,7 +63,12 @@ def get_headers(url):
         p = requests.head(url, allow_redirects=False, headers=HEADERS)
 
         if p.status_code not in [200,301]:
-            return [url,p.status_code, '']
+
+            # retry and real get request.
+            # some servers block head requests.
+            p = requests.get(url, allow_redirects=False, headers=HEADERS)
+            if p.status_code not in [200,301]:
+                return [url,p.status_code, '']
 
     except BaseException as e:
         return [url,999,e]
