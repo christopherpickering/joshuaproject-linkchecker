@@ -59,15 +59,23 @@ def get_urls():
         #     break
 
 def get_headers(url):
+
+    ok_codes = [
+        200, # good
+        301, # moved and redirected
+        302 # found, no change
+        307 # found and redirected
+        303 # redirected
+        ]
     try:
         p = requests.head(url, allow_redirects=False, headers=HEADERS)
 
-        if p.status_code not in [200,301]:
+        if p.status_code not in ok_codes:
 
             # retry and real get request.
             # some servers block head requests.
             p = requests.get(url, allow_redirects=False, headers=HEADERS)
-            if p.status_code not in [200,301]:
+            if p.status_code not in ok_codes:
                 return [url,p.status_code, '']
 
     except BaseException as e:
