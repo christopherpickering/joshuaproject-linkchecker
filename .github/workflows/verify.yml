@@ -34,5 +34,5 @@ jobs:
 
       - uses: actions/upload-artifact@v3
         with:
-          name: errors-${{ matrix.chunck }}
+          name: errors ${{ matrix.chunk }}
           path: errors.csv
