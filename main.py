@@ -63,8 +63,8 @@ def get_headers(url):
     ok_codes = [
         200, # good
         301, # moved and redirected
-        302 # found, no change
-        307 # found and redirected
+        302, # found, no change
+        307, # found and redirected
         303 # redirected
         ]
     try:
