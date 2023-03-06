@@ -36,3 +36,4 @@ jobs:
         with:
           name: errors ${{ matrix.chunk }}
           path: errors.csv
+          retention-days: 25
