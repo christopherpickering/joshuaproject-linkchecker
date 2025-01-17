@@ -32,7 +32,7 @@ jobs:
           CHUNK: ${{ matrix.chunk }}
           CHUNK_SIZE: 50
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: errors ${{ matrix.chunk }}
           path: errors.csv
